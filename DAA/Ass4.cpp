@@ -1,73 +1,130 @@
 #include <bits/stdc++.h>
 using namespace std;
 
-int n;
-int start_row, start_col;
-vector<vector<string>> solutions;
+// Global variables
+int N;
 
-void solveNQueens(int r, vector<string>& board,
-                  unordered_set<int>& cols,
-                  unordered_set<int>& posDiag,
-                  unordered_set<int>& negDiag) {
-    if (r == n) {
-        solutions.push_back(board);
+// ================= BACKTRACKING METHOD =================
+bool isSafe(vector<string> &board,int row,int col)
+{
+    // for column
+    int n=board.size();
+    //col
+    for(int i=0;i<n;i++)
+    {
+        if(board[i][col]=='Q') return false;
+    }
+    // row
+    for(int i=0;i<n;i++)
+    {
+        if(board[row][i]=='Q'){
+            return false;
+        }
+    }
+
+    //up-left
+    for(int i=row-1,j=col-1;i>=0 && j>=0; i--,j--)
+    {
+        if(board[i][j]=='Q') return false;
+    }
+    //up-right
+    for(int i=row-1,j=col+1;i>=0 && j<n;i--,j++)
+    {
+        if(board[i][j]=='Q') return false;
+    }
+
+    //down-left
+    for(int i=row+1,j=col-1;i<n && j>=0 ;i++,j--){
+        if(board[i][j]=='Q'){
+            return false;
+        }
+    }
+
+    //down-right
+    for(int i=row+1,j=col+1;i<n && j<n ; i++,j++){
+        if(board[i][j]=='Q'){
+            return false;
+        }
+    }
+    return true;
+    
+}
+void solveBacktracking(int row,vector<string> &board,int &count,int sx)
+{
+    if(row==N)
+    {
+        count++;
+        for(string s: board)
+        {
+            cout<<s<<endl;
+        }cout<<endl;
         return;
     }
 
-    // Skip the fixed starting queen row
-    if (r == start_row) {
-        solveNQueens(r + 1, board, cols, posDiag, negDiag);
+    if(row==sx){
+        solveBacktracking(row+1,board,count,sx);
         return;
     }
 
-    for (int c = 0; c < n; c++) {
-        if (cols.count(c) || posDiag.count(r + c) || negDiag.count(r - c))
-            continue;
-
-        // Choose
-        cols.insert(c);
-        posDiag.insert(r + c);
-        negDiag.insert(r - c);
-        board[r][c] = '1';
-
-        // Explore next row
-        solveNQueens(r + 1, board, cols, posDiag, negDiag);
-
-        // Undo choice
-        cols.erase(c);
-        posDiag.erase(r + c);
-        negDiag.erase(r - c);
-        board[r][c] = '0';
+    for(int col=0;col<N;col++)
+    {
+        if(isSafe(board,row,col))
+        {
+            board[row][col]='Q';
+            solveBacktracking(row+1,board,count,sx);
+            board[row][col]='.';
+        }
     }
 }
 
-void n_queens(int n_input, int s_row, int s_col) {
-    n = n_input;
-    start_row = s_row;
-    start_col = s_col;
 
-    unordered_set<int> cols, posDiag, negDiag;
-    vector<string> board(n, string(n, '0'));
 
-    // Place the fixed queen
-    cols.insert(start_col);
-    posDiag.insert(start_row + start_col);
-    negDiag.insert(start_row - start_col);
-    board[start_row][start_col] = '1';
-
-    solveNQueens(0, board, cols, posDiag, negDiag);
-
-    cout << "\nTotal Solutions Found: " << solutions.size() << "\n\n";
-    for (auto& sol : solutions) {
-        for (auto& row : sol)
-            cout << row << "\n";
-        cout << "\n";
-    }
+void nQueensBacktracking() {
+    vector<string> board(N, string(N, '.'));
+    int count = 0;
+    cout<<"Enter starting queen location : ";
+    int sx,sy;
+    cin>>sx>>sy;
+    board[sx][sy]='Q';
+    cout << "\n--- Solving using Backtracking ---\n\n";
+    solveBacktracking(0, board, count,sx);
+    cout << "Total Solutions: " << count << "\n";
 }
 
+
+
+// ================= MAIN MENU =================
 int main() {
-    int n = 8;
-    int start_row = 0, start_col = 0;
-    n_queens(n, start_row, start_col);
+    int choice;
+
+    do {
+        cout << "\n==============================\n";
+        cout << "      N - Queens Problem\n";
+        cout << "==============================\n";
+        cout << "1. Solve using Backtracking\n";
+        cout << "2. Exit\n";
+        cout << "Enter your choice: ";
+        cin >> choice;
+
+        if (choice == 1) {
+            cout << "Enter board size N: ";
+            cin >> N;
+        }
+
+        switch (choice) {
+            case 1:
+                nQueensBacktracking();
+                break;
+            case 2:
+                cout << "Exiting program...\n";
+                break;
+            default:
+                cout << "Invalid choice! Try again.\n";
+        }
+
+    } while (choice != 2);
+
     return 0;
 }
+
+n queen
